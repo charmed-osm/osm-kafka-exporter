@@ -1,0 +1,28 @@
+# This file populates the Overview on Charmhub.
+# See https://juju.is/docs/sdk/metadata-reference for a checklist and guidance.
+
+# The charm package name, no spaces (required)
+# See https://juju.is/docs/sdk/naming#heading--naming-charms for guidance.
+name: osm-kafka-exporter
+display-name: OSM Prometheus Kafka Exporter K8s
+summary: OSM Prometheus Kafka Exporter
+description: |
+  Charm to deploy OSM's Prometheus Kafka Exporter.
+containers:
+  kafka-exporter:
+    resource: image
+resources:
+  image:
+    type: oci-image
+    description: Image of kafka-exporter
+    upstream-source: "bitnami/kafka-exporter:1.4.2"
+provides:
+  metrics-endpoint:
+    interface: prometheus_scrape
+  grafana-dashboard:
+    interface: grafana_dashboard
+requires:
+  kafka:
+    interface: kafka
+  ingress:
+    interface: ingress
