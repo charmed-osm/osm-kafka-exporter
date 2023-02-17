@@ -118,11 +118,15 @@ class KafkaExporterCharm(CharmBase):
                     event.defer()
                     self.unit.status = WaitingStatus("waiting for Pebble API")
         except ChangeError as error:
-            logger.warning("Cannot start the service %s", error)
-            logger.warning("Retry %s times", retry)
-            time.sleep(5)
-            retry -= 1
-            self._configure_service(event, retry)
+            self._retry_configure_service(event, retry, error)
+
+    def _retry_configure_service(self, event, retry, error) -> None:
+        """Retry to configure the service in case it is not ready yet."""
+        logger.warning("Cannot start the service %s", error)
+        logger.warning("Retry %s times", retry)
+        time.sleep(5)
+        retry -= 1
+        self._configure_service(event, retry)
 
     def _validate_config(self) -> None:
         """Validate charm configuration.

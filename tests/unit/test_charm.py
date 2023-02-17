@@ -7,6 +7,8 @@ import unittest
 
 import ops.testing
 from charm import KafkaExporterCharm
+from charms.kafka_k8s.v0.kafka import KafkaEvents
+from charms.osm_libs.v0.utils import CharmError
 from ops.model import ActiveStatus, BlockedStatus, WaitingStatus
 from ops.testing import Harness
 
@@ -190,4 +192,13 @@ class TestCharm(unittest.TestCase):
         self.assertIsInstance(self.harness.model.unit.status, BlockedStatus)
 
         self.harness.remove_relation(relation_id)
+        self.assertIsInstance(self.harness.model.unit.status, ActiveStatus)
+
+    def test_retry_config_service(self):
+        """Test the function _retry_configure_service."""
+        self.harness.set_can_connect("kafka-exporter", True)
+        relation_id = self.harness.add_relation("kafka", "kafka")
+        self.harness.add_relation_unit(relation_id, "kafka/0")
+        self.harness.update_relation_data(relation_id, "kafka", {"host": "kafka", "port": "9092"})
+        self.harness.charm._retry_configure_service(KafkaEvents.kafka_available, 3, CharmError)
         self.assertIsInstance(self.harness.model.unit.status, ActiveStatus)
