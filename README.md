@@ -8,18 +8,14 @@ Avoid using this README file for information that is maintained or published els
 Use links instead.
 -->
 
-# mongodb-exporter
+# osm-kafka-exporter
 
-Charmhub package name: operator-template
-More information: https://charmhub.io/mongodb-exporter
+Charmhub package name: osm-kafka-exporter
+More information: https://charmhub.io/osm-kafka-exporter
 
-Describe your charm in one or two sentences.
+Prometheus kafka exporter for OSM Charms
 
 ## Other resources
-
-<!-- If your charm is documented somewhere else other than Charmhub, provide a link separately. -->
-
-- [Read more](https://example.com)
 
 - [Contributing](CONTRIBUTING.md) <!-- or link to other contribution documentation -->
 
