@@ -92,7 +92,6 @@ class KafkaExporterCharm(CharmBase):
 
         Learn more about interacting with Pebble at at https://juju.is/docs/sdk/pebble.
         """
-        logger.warning("_on_kafka_exporter_pebble_ready")
         try:
             self.kafka_endpoint = self._get_kafka_endpoint(event)
             # Add initial Pebble config layer using the Pebble API
@@ -107,7 +106,6 @@ class KafkaExporterCharm(CharmBase):
             self.unit.status = error.status
 
     def _configure_service(self, event, retry=3) -> None:
-        logger.warning("_configure_service")
         try:
             if retry:
                 if self.container.can_connect():
@@ -121,7 +119,7 @@ class KafkaExporterCharm(CharmBase):
                     self.unit.status = WaitingStatus("waiting for Pebble API")
         except ChangeError as error:
             logger.warning("Cannot start the service %s", error)
-            logger.warning("We will retry for %s times", retry)
+            logger.warning("Retry %s times", retry)
             time.sleep(5)
             retry -= 1
             self._configure_service(event, retry)
@@ -132,7 +130,6 @@ class KafkaExporterCharm(CharmBase):
         Raises:
             CharmError: if charm configuration is invalid.
         """
-        logger.warning("Validating config")
         if self.config["log-level"].upper() not in [
             "TRACE",
             "DEBUG",
@@ -147,7 +144,6 @@ class KafkaExporterCharm(CharmBase):
             raise CharmError("invalid value for log-level option")
 
         if kafkaendpoint := self.model.config.get("kafka-endpoint"):
-            logger.warning("Kafka endpoint: %s", kafkaendpoint)
             if len(kafkaendpoint.split(":")) != 2:
                 self.unit.status = BlockedStatus("Wrong kafka-endpoint format")
                 raise CharmError(
@@ -162,7 +158,6 @@ class KafkaExporterCharm(CharmBase):
             raise CharmError(error.message) from error
 
     def _get_kafka_relation(self, event):
-        logger.warning(type(event).__name__)
         if type(event).__name__ == "RelationBrokenEvent":
             return None
         if self.kafka_client.host and self.kafka_client.port:
@@ -171,7 +166,6 @@ class KafkaExporterCharm(CharmBase):
 
     def _on_config_changed(self, event=None) -> None:
         """Handle changed configuration."""
-        logger.warning("_on_config_changed")
         try:
             # Fetch the new config value
             self.kafka_endpoint = self._get_kafka_endpoint(event)
@@ -184,21 +178,18 @@ class KafkaExporterCharm(CharmBase):
 
     def _on_update_status(self, event=None) -> None:
         """Handle for the update-status event."""
-        logger.warning("_on_update_status")
         try:
             self.kafka_endpoint = self._get_kafka_endpoint(event)
-            logger.warning(self.kafka_endpoint)
             check_container_ready(self.container)
             check_service_active(self.container, self.pebble_service_name)
             self.unit.status = ActiveStatus()
         except CharmError as error:
-            logger.debug(error.message)
+            logger.warning(error.message)
             self._stop_container()
             self.unit.status = error.status
 
     def _stop_container(self) -> None:
         """Stop workload container."""
-        logger.warning("_stop_container")
         try:
             check_service_active(self.container, self.pebble_service_name)
             check_container_ready(self.container)
@@ -211,7 +202,6 @@ class KafkaExporterCharm(CharmBase):
 
     def _on_db_relation_broken(self, event) -> None:
         """Handle relation broken event."""
-        logger.warning("_on_db_relation_broken")
         try:
             self.kafka_endpoint = self._get_kafka_endpoint(event)
             self._configure_service(event)
@@ -221,12 +211,10 @@ class KafkaExporterCharm(CharmBase):
 
     def _on_kafka_available(self, event) -> None:
         """Event triggered when a database was created for this application via relation."""
-        logger.warning("_on_kafka_available")
         try:
             self.kafka_endpoint = self._get_kafka_endpoint()
             check_container_ready(self.container)
             self._configure_service(event)
-            logger.warning(self.kafka_endpoint)
             self._on_update_status()
         except CharmError as error:
             self._stop_container()

@@ -3,15 +3,12 @@
 #
 # Learn more about testing at: https://juju.is/docs/sdk/testing
 
-import logging
 import unittest
 
 import ops.testing
 from charm import KafkaExporterCharm
 from ops.model import ActiveStatus, BlockedStatus, WaitingStatus
 from ops.testing import Harness
-
-logger = logging.getLogger(__name__)
 
 
 class TestCharm(unittest.TestCase):
